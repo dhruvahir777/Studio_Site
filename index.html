@@ -1,35 +1,766 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>धूम्रपान हानिकारक है</title>
-    <style>
-        /* Page ka background black hoga */
-        body {
-            background-color: black;
-            color: red;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding-top: 20%;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dhaval Gagiya | Python • FastAPI • React Developer</title>
 
-        /* Warning message ke liye styling */
-        .warning {
-            font-size: 24px;
-            font-weight: bold;
-            border: 2px solid red;
-            padding: 20px;
-            display: inline-block;
-        }
-    </style>
+  <!-- Optional web font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg:#07080c;
+      --bg-soft:#11131c;
+      --fg:#eef0f4;
+      --muted:#9aa0ac;
+      --border:#232536;
+      --glass:rgba(255,255,255,.04);
+      --accent:#22c55e;      /* live editable */
+      --accent-2:#7c3aed;
+      --radius:18px;
+      --shadow:0 28px 60px -28px rgba(0,0,0,.7);
+      --shadow-sm:0 10px 28px rgba(0,0,0,.35);
+      --max:1280px;
+      --nav-h:76px;
+      --progress:0%;
+      --cursor: rgba(34,197,94,.18);
+    }
+    @media(prefers-reduced-motion:no-preference){
+      html{scroll-behavior:smooth}
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{
+      background:var(--bg);color:var(--fg);
+      font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    }
+    img{max-width:100%;display:block}
+    a{text-decoration:none;color:inherit}
+    ::selection{background:var(--accent);color:#000}
+    .container{max-width:var(--max);margin-inline:auto;padding:0 1.25rem}
+
+    /* noise */
+    .noise{
+      position:fixed;inset:0;pointer-events:none;opacity:.04;z-index:1;
+      background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 400 400"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>');
+    }
+
+    /* cursor blob */
+    .cursor{
+      position:fixed;left:0;top:0;width:120px;height:120px;border-radius:50%;
+      background:var(--cursor);filter:blur(40px);pointer-events:none;transform:translate(-50%,-50%);
+      z-index:0;opacity:.65;transition:background .2s;
+    }
+
+    /* blobs */
+    .blob{
+      position:fixed;width:620px;height:620px;border-radius:50%;filter:blur(130px);
+      opacity:.45;z-index:0;
+    }
+    .blob.one{
+      left:-200px;bottom:-180px;background:radial-gradient(circle at 30% 30%, rgba(34,197,94,.35), transparent 70%);
+      animation:float1 18s ease-in-out infinite alternate;
+    }
+    .blob.two{
+      right:-220px;top:-220px;background:radial-gradient(circle at 30% 30%, rgba(124,58,237,.32), transparent 70%);
+      animation:float2 24s ease-in-out infinite alternate;
+    }
+    @keyframes float1{to{transform:translate(120px,-90px) scale(1.08)}}
+    @keyframes float2{to{transform:translate(-100px,100px) scale(1.04)}}
+
+    /* progress bar */
+    .progress{
+      position:fixed;top:0;left:0;height:3px;width:100%;background:rgba(255,255,255,.03);z-index:1003;
+    }
+    .progress::after{
+      content:"";display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      width:var(--progress);transition:width .08s linear;
+    }
+
+    /* header */
+    header{
+      position:sticky;top:0;height:var(--nav-h);z-index:1002;
+      backdrop-filter:blur(14px);
+      background:rgba(7,8,12,.4);border-bottom:1px solid rgba(255,255,255,.04);
+    }
+    nav{
+      height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:1rem;
+    }
+    .brand{
+      font-weight:800;font-size:1.12rem;letter-spacing:.6px;
+      color:#fff;
+      /* background:linear-gradient(120deg,var(--accent),var(--accent-2)); */
+      /* -webkit-background-clip:text;color:transparent; */
+    }
+    .nav-links{
+      display:flex;align-items:center;gap:1.25rem;list-style:none;position:relative;
+    }
+    .nav-links a{
+      color:var(--muted);font-weight:500;transition:color .2s;
+    }
+    .nav-links a.active{color:var(--accent)}
+    .nav-links a:hover{color:var(--fg)}
+    .hire-btn{
+      display:inline-flex;align-items:center;justify-content:center;padding:.7rem 1.1rem;border-radius:999px;background:var(--accent);
+      color:#07080c;font-weight:600;box-shadow:var(--shadow-sm);
+    }
+    .hamburger{
+      display:none;width:30px;height:20px;position:relative;background:none;border:0;cursor:pointer;
+    }
+    .hamburger span, .hamburger::before, .hamburger::after{
+      content:"";position:absolute;left:0;width:100%;height:2px;background:#fff;transition:transform .25s, top .25s, opacity .2s;
+    }
+    .hamburger span{top:9px}
+    .hamburger::before{top:0}
+    .hamburger::after{top:18px}
+    .hamburger.active span{opacity:0}
+    .hamburger.active::before{top:9px;transform:rotate(45deg)}
+    .hamburger.active::after{top:9px;transform:rotate(-45deg)}
+    @media(max-width:960px){
+      .hamburger{display:block}
+      .nav-links{
+        position:absolute;top:var(--nav-h);left:0;right:0;
+        flex-direction:column;background:rgba(7,8,12,.98);
+        border-bottom:1px solid rgba(255,255,255,.05);
+        padding:1rem 1.25rem 1.25rem;display:none;
+      }
+      .nav-links.open{display:flex}
+    }
+
+    /* hero */
+    .hero{
+      min-height:calc(100vh - var(--nav-h));
+      display:flex;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;
+      padding:6.5rem 0 4rem;z-index:2;
+    }
+    .hero-inner{max-width:1000px;margin-inline:auto}
+    .headline{
+      font-weight:900;font-size:clamp(2.4rem,7vw,5.2rem);line-height:1.05;margin-bottom:1rem;
+    }
+    .gradient-text{
+      background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      -webkit-background-clip:text;color:transparent;
+      background-size:200% 200%;animation:gradientMove 6s ease infinite;
+    }
+    @keyframes gradientMove{
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+    .sub{color:var(--muted);max-width:780px;margin-inline:auto}
+    .typewriter{color:var(--muted);min-height:1.6em;margin-top:.35rem}
+    .hero-cta{
+      margin-top:2.2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;
+    }
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:.45rem;padding:.95rem 1.4rem;border-radius:14px;font-weight:600;border:1px solid transparent;transition:all .22s;box-shadow:var(--shadow-sm);
+    }
+    .btn-primary{background:var(--accent);color:#07080c}
+    .btn-outline{background:transparent;border-color:var(--border);color:var(--fg)}
+    .btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+    .btn.magnetic{will-change:transform}
+
+    .techline{
+      margin-top:2.1rem;display:flex;flex-wrap:wrap;gap:.9rem;justify-content:center;align-items:center
+    }
+    .techline img{
+      width:36px;height:36px;filter:grayscale(.15);transition:transform .18s ease;
+    }
+    .techline img:hover{transform:translateY(-2px)}
+
+    /* sections */
+    section{
+      position:relative;z-index:2;
+      padding:5rem 0;border-top:1px solid rgba(255,255,255,.03);
+    }
+    section h2{
+      font-size:2.15rem;margin-bottom:2.25rem;text-align:center;font-weight:800;
+      background:linear-gradient(120deg,var(--accent),var(--accent-2));
+      -webkit-background-clip:text;color:transparent;
+    }
+    .lead{
+      color:var(--muted);max-width:820px;margin-inline:auto;text-align:center;font-size:1.05rem
+    }
+
+    /* cards */
+    .card{
+      background:var(--glass);backdrop-filter:blur(6px);
+      border:1px solid rgba(255,255,255,.04);
+      border-radius:var(--radius);box-shadow:var(--shadow);padding:1.35rem 1.5rem;
+      transition:transform .2s, border-color .2s, box-shadow .2s;
+      will-change:transform;
+    }
+    .card:hover{
+      transform:translateY(-4px);
+      border-color:rgba(255,255,255,.08);
+      box-shadow:0 22px 38px -24px rgba(0,0,0,.6);
+    }
+
+    .grid{display:grid;gap:1.25rem}
+    @media(min-width:960px){
+      .grid.cols-2{grid-template-columns:repeat(2,1fr)}
+      .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+    }
+
+    /* timeline */
+    .timeline{
+      position:relative;margin:2.5rem auto 0;max-width:980px;padding-left:1.2rem;
+    }
+    .timeline:before{
+      content:"";position:absolute;left:.6rem;top:0;bottom:0;width:2px;background:rgba(255,255,255,.07);
+    }
+    .timeline-item{
+      position:relative;margin-bottom:2.4rem;padding-left:1.6rem;
+    }
+    .timeline-item:before{
+      content:"";position:absolute;left:-.04rem;top:.35rem;width:11px;height:11px;border-radius:50%;background:var(--accent);
+      box-shadow:0 0 0 6px rgba(34,197,94,.08);
+    }
+    .role{font-weight:700}
+    .period{color:var(--muted);font-size:.9rem;margin:.15rem 0 .6rem}
+    .bullets{color:var(--muted);margin-top:.5rem}
+    .bullets li{margin-left:1.1rem;margin-bottom:.35rem}
+
+    /* projects */
+    .project{
+      display:flex;flex-direction:column;gap:.85rem;perspective:1000px;
+    }
+    .project-header{
+      display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem
+    }
+    .project-title{font-size:1.2rem;font-weight:700}
+    .pill{
+      display:inline-flex;align-items:center;padding:.2rem .55rem;border-radius:999px;background:rgba(255,255,255,.06);
+      font-size:.75rem;color:var(--muted)
+    }
+    .badge{
+      display:inline-flex;align-items:center;justify-content:center;padding:.24rem .55rem;border-radius:999px;font-size:.78rem;color:var(--muted);
+      background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);margin-right:.35rem;margin-bottom:.35rem;
+    }
+
+    /* skills */
+    .skill-grid{display:grid;gap:1rem}
+    @media(min-width:768px){
+      .skill-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    .skill-cat h3{font-size:1.05rem;margin-bottom:.5rem;color:#fff}
+    .skill-cat p{color:var(--muted);font-size:.95rem;line-height:1.6}
+
+    /* accent picker + cmd palette button */
+    .utilities{
+      position:fixed;right:18px;bottom:18px;z-index:1004;display:flex;flex-direction:column;gap:.5rem;align-items:flex-end;
+    }
+    .accent-picker, .cmd-btn{
+      background:rgba(0,0,0,.22);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.06);
+      padding:.5rem .65rem;border-radius:12px;color:var(--muted);font-size:.8rem;display:flex;align-items:center;gap:.4rem;
+    }
+    .accent-picker input[type="color"]{
+      width:24px;height:24px;border:0;background:none;padding:0;border-radius:50%;cursor:pointer;
+    }
+    .cmd-btn{cursor:pointer;user-select:none}
+
+    /* command palette */
+    .cmd-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(2px);
+      display:none;align-items:flex-start;justify-content:center;padding-top:15vh;z-index:2000;
+    }
+    .cmd{
+      width:min(620px,calc(100vw - 32px));background:#0f1118;border:1px solid rgba(255,255,255,.07);
+      border-radius:14px;box-shadow:var(--shadow);overflow:hidden;
+    }
+    .cmd input{
+      width:100%;border:0;background:transparent;color:#fff;font:inherit;padding:1rem 1.1rem;border-bottom:1px solid rgba(255,255,255,.05);
+      outline:none;
+    }
+    .cmd-list{
+      max-height:300px;overflow:auto;
+    }
+    .cmd-item{
+      padding:.8rem 1.1rem;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;color:#cdd1d8;
+    }
+    .cmd-item.active, .cmd-item:hover{
+      background:rgba(255,255,255,.04);color:#fff;
+    }
+
+    /* contact */
+    .contact-actions{
+      margin-top:1.25rem;display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap
+    }
+    .contact-actions a{
+      border:1px solid var(--border);padding:.7rem 1rem;border-radius:10px;transition:all .2s
+    }
+    .contact-actions a:hover{
+      border-color:var(--accent);color:var(--accent)
+    }
+
+    /* footer */
+    footer{text-align:center;padding:2.8rem 0 3.6rem;color:var(--muted);font-size:.9rem;z-index:2;position:relative}
+
+    /* reveal */
+    .reveal{opacity:0;transform:translateY(26px);transition:all .7s cubic-bezier(.2,.65,.3,1)}
+    .reveal.in{opacity:1;transform:none}
+
+    .profile-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--accent);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+      margin-bottom: 0.7rem;
+    }
+    .profile-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--fg);
+      letter-spacing: 0.5px;
+      margin-bottom: 0.2rem;
+    }
+  </style>
 </head>
 <body>
-    <div class="warning">
-        ⚠️ धूम्रपान स्वास्थ्य के लिए हानिकारक है ⚠️
-        <br>
-        🚭 Smoking is injurious to health 🚭
+  <!-- background -->
+  <div class="noise"></div>
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="cursor" id="cursor"></div>
+
+  <!-- progress -->
+  <div class="progress"></div>
+
+  <!-- utilities -->
+  <div class="utilities">
+    <div class="accent-picker">
+      Accent <input id="accentPicker" type="color" value="#22c55e" />
     </div>
+    <div class="cmd-btn" id="cmdBtn">Cmd / Ctrl + K</div>
+  </div>
+
+  <!-- command palette -->
+  <div class="cmd-overlay" id="cmdOverlay" aria-hidden="true">
+    <div class="cmd" role="dialog" aria-modal="true" aria-labelledby="cmdTitle">
+      <input id="cmdInput" type="text" placeholder="Type to jump: about, skills, fastapi, react…" aria-label="Command search"/>
+      <div class="cmd-list" id="cmdList"></div>
+    </div>
+  </div>
+
+  <!-- header -->
+  <header>
+    <div class="container">
+      <nav>
+        <a href="#" class="brand">Dhaval Gagiya</a>
+
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+          <span></span>
+        </button>
+
+        <ul class="nav-links" id="navLinks">
+          <li><a href="#about" data-section="about">About</a></li>
+          <li><a href="#experience" data-section="experience">Experience</a></li>
+          <li><a href="#skills" data-section="skills">Skills</a></li>
+          <li><a href="#projects" data-section="projects">Projects</a></li>
+          <li><a href="#contact" data-section="contact">Contact</a></li>
+          <li><a class="hire-btn" href="mailto:dhaval.dex@gmail.com">Hire Me</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- hero -->
+  <section class="hero" id="home">
+    <div class="container hero-inner">
+      <div class="profile-block">
+        <img src="profile.jpg" alt="Dhaval Gagiya" class="profile-pic">
+        <div class="profile-name">Dhaval Gagiya</div>
+      </div>
+      <h2 class="headline gradient-text">Python Developer </h2>
+      <p class="sub">APIs, Web scraping, scalable backends (FastAPI/Flask) + clean React frontends with MongoDB/MySQL data layers.</p>
+      <p class="typewriter" id="typewriter"></p>
+
+      <div class="hero-cta">
+        <a class="btn btn-primary magnetic" href="DXResume.pdf" download>Download Resume</a>
+        <a class="btn btn-outline magnetic" href="DXResume.pdf" target="_blank" rel="noopener">View Resume</a>
+        <a class="btn btn-outline magnetic" href="#projects">View Projects</a>
+      </div>
+
+      <div class="techline">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" title="Python">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" alt="FastAPI" title="FastAPI">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flask/flask-original-wordmark.svg" alt="Flask" title="Flask">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React" title="React">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" alt="MongoDB" title="MongoDB">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" alt="MySQL" title="MySQL">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript" title="JavaScript">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original-wordmark.svg" alt="GitHub" title="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg" alt="Pandas" title="Pandas">
+      </div>
+    </div>
+  </section>
+
+  <!-- about -->
+  <section id="about">
+    <div class="container">
+      <h2 class="reveal">About</h2>
+      <p class="lead reveal">
+         I work on building backend systems and web applications that address real-world problems with reliability and efficiency. My projects involve creating secure APIs using FastAPI and Python, along with designing responsive interfaces using React.js and Tailwind CSS. I've handled tasks such as web data extraction using Selenium, managing sessions and CAPTCHA, and organizing data into structured formats like CSV and JSON. With experience in both SQL and NoSQL databases, I focus on creating solutions that are scalable, optimized, and easy to maintain. I'm always exploring better ways to enhance performance and deliver clean, user-focused software.
+      </p>
+    </div>
+  </section>
+
+  <!-- experience -->
+  <section id="experience">
+    <div class="container">
+      <h2 class="reveal">Experience</h2>
+      <div class="timeline">
+        <div class="timeline-item reveal">
+          <div class="role">Software Developer — Binary Bits.co</div>
+          <div class="period">Apr 2025 – Aug 2025</div>
+          <ul class="bullets">
+            
+            <li> I led the development of an accounting tool designed for Chartered Accountants. manage payments,
+ service records, and employee commissions in an organized way. I used FastAPI and MySQL for the
+ backend, and React.js with Tailwind CSS for a clean and responsive frontend. I also built secure APIs
+ with role-based access control. Alongside this, I created custom scripts to scrape data from public and
+ protected websites, handling things like sessions and CAPTCHA. The data was formatted into CSV/JSON
+ and made available through live API endpoints. I worked with both MySQL and MongoDB to ensure the
+ system was fast, reliable, and handled data smoothly   .</li>
+          </ul>
+        </div>
+        <div class="timeline-item reveal">
+          <div class="role">Software Developer Intern — Binary Bits.co</div>
+          <div class="period">Oct 2023 – Mar 2025</div>
+          <ul class="bullets">
+            <li> Contributed to backend logic, automation tasks, and data handling.</li>
+            <li>Developed  scripts for automating data extraction from multiple sources using tools like Selenium.</li>
+            <li>Integrated Pandas for data validation and quality checks to ensure accurate outputs</li>
+            <li> Supported in designing modular code structures to enhance script reliability and performance</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- skills -->
+  <section id="skills">
+    <div class="container">
+      <h2 class="reveal">Skills</h2>
+      <div class="skill-grid">
+        <div class="card skill-cat reveal">
+          <h3>Languages</h3>
+          <p>Python, JavaScript, SQL</p>
+        </div>
+        <div class="card skill-cat reveal">
+          <h3>Frameworks & Libraries</h3>
+          <p>FastAPI, Flask, React.js, Pandas, BeautifulSoup, Selenium</p>
+        </div>
+        <div class="card skill-cat reveal">
+          <h3>Databases</h3>
+          <p>MongoDB, MySQL</p>
+        </div>
+        <div class="card skill-cat reveal">
+          <h3>DevOps & Tools</h3>
+          <p>Git/GitHub,  Google OAuth,   Canva, Photoshop, MS Office</p>
+        </div>
+        <div class="card skill-cat reveal">
+          <h3>Specialties</h3>
+          <p>API Design, Automation, Web Scraping, Data Validation, Secure Auth, Production Systems</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- projects -->
+  <section id="projects">
+    <div class="container">
+      <h2 class="reveal">Projects</h2>
+
+      <!-- Project 1 -->
+      <article class="card project reveal tilt">
+        <div class="project-header">
+          <span class="project-title">Modern Billing System</span>
+          <span class="pill">Python • FastAPI • React • MongoDB</span>
+        </div>
+        <p>
+          Full-featured billing platform: Admin/Staff roles, custom items, instant bill printing, order history,
+          dynamic GST & currency, theme personalization (user colors), guest demo mode, Google OAuth login.
+          API-driven, role-protected, and scalable architecture.
+        </p>
+        <div>
+          <span class="badge">FastAPI</span>
+          <span class="badge">React</span>
+          <span class="badge">MongoDB</span>
+          <span class="badge">Google Auth</span>
+          <span class="badge">PDF/Print</span>
+        </div>
+      </article>
+      <div style="height: 2.5rem;"></div>
+      <!-- Project 2 -->
+      <article class="card project reveal tilt">
+        <div class="project-header">
+          <span class="project-title">Auto Web Cloner</span>
+          <span class="pill">Python • Flask  • BeautifulSoup</span>
+        </div>
+        <p>
+          Flask-based UI cloning engine. Paste a URL → generates an offline-ready repo with HTML, CSS, JS, and assets,
+          proper folder structure, captcha-aware flows, and Pandas-powered data validation.
+        </p>
+        <div>
+          <span class="badge">Flask</span>
+          <span class="badge">Selenium</span>
+          <span class="badge">BeautifulSoup</span>
+          <span class="badge">Pandas</span>
+          <span class="badge">Automation</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- contact -->
+  <section id="contact">
+    <div class="container">
+      <h2 class="reveal">Contact</h2>
+      <p class="lead reveal">Reach out directly:</p>
+
+      <div class="contact-actions reveal">
+        <a href="mailto:dhaval.dex@gmail.com">dhaval.dex@gmail.com</a>
+        <a href="tel:+919313079129">+91 93130 79129</a>
+        <a href="https://www.linkedin.com/in/dhruv--/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="YOUR_RESUME_URL" target="_blank" rel="noopener">Resume</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © <span id="year"></span> Dhaval Gagiya
+  </footer>
+
+  <script>
+    // ------------------ Config ------------------
+    const RESUME_URL = "DXResume.pdf"; // Updated to actual resume file
+    document.querySelectorAll('a[href="YOUR_RESUME_URL"]').forEach(a => a.href = RESUME_URL);
+
+    // ------------------ Elements ------------------
+    const root = document.documentElement;
+    const yearSpan = document.getElementById('year');
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+    const typewriterEl = document.getElementById('typewriter');
+    const accentPicker = document.getElementById('accentPicker');
+    const cursor = document.getElementById('cursor');
+    const cmdOverlay = document.getElementById('cmdOverlay');
+    const cmdInput = document.getElementById('cmdInput');
+    const cmdList = document.getElementById('cmdList');
+    const cmdBtn = document.getElementById('cmdBtn');
+    const links = [...document.querySelectorAll('.nav-links a[data-section]')];
+
+    yearSpan.textContent = new Date().getFullYear();
+
+    // ------------------ Mobile Nav ------------------
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      navLinks.classList.toggle('open');
+    });
+    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      hamburger.classList.remove('active');
+      navLinks.classList.remove('open');
+    }));
+
+    // ------------------ Typewriter ------------------
+    const lines = [
+      "APIs with FastAPI & Flask.",
+      "React frontends that ship.",
+      "Automation & scraping (Selenium, BS4).",
+      "Pandas for validation & data ops.",
+      "RBAC + Google OAuth secure auth."
+    ];
+    let l = 0, i = 0, del = false;
+    (function type(){
+      const full = lines[l];
+      if(!del){
+        typewriterEl.textContent = full.slice(0, ++i);
+        if(i === full.length){ del = true; setTimeout(type, 1200); return; }
+      } else {
+        typewriterEl.textContent = full.slice(0, --i);
+        if(i === 0){ del = false; l = (l+1) % lines.length; }
+      }
+      setTimeout(type, del ? 28 : 46);
+    })();
+
+    // ------------------ Reveal on scroll ------------------
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.classList.add('in');
+          observer.unobserve(entry.target);
+        }
+      })
+    }, {threshold:.14});
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ------------------ Scroll progress ------------------
+    window.addEventListener('scroll', ()=>{
+      const scrollTop = window.scrollY;
+      const docH = document.body.scrollHeight - window.innerHeight;
+      const p = docH ? (scrollTop / docH) * 100 : 0;
+      root.style.setProperty('--progress', p + '%');
+    });
+
+    // ------------------ Accent color live change ------------------
+    accentPicker.addEventListener('input', (e)=>{
+      root.style.setProperty('--accent', e.target.value);
+      root.style.setProperty('--cursor', hexToRgba(e.target.value, 0.18));
+    });
+    function hexToRgba(hex, alpha){
+      const r = parseInt(hex.slice(1,3),16);
+      const g = parseInt(hex.slice(3,5),16);
+      const b = parseInt(hex.slice(5,7),16);
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    // ------------------ Cursor blob ------------------
+    let cx = window.innerWidth/2, cy = window.innerHeight/2;
+    let tx = cx, ty = cy;
+    const speed = 0.12;
+    window.addEventListener('mousemove', e => {
+      tx = e.clientX; ty = e.clientY;
+    });
+    function animateCursor(){
+      cx += (tx - cx) * speed;
+      cy += (ty - cy) * speed;
+      cursor.style.transform = `translate(${cx}px, ${cy}px)`;
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // ------------------ 3D Tilt ------------------
+    document.querySelectorAll('.tilt').forEach(card=>{
+      const strength = 8;
+      let rect;
+      function enter(){ rect = card.getBoundingClientRect(); card.style.transition='transform .05s linear'; }
+      function leave(){ card.style.transform='perspective(1000px) rotateX(0) rotateY(0)'; card.style.transition='transform .25s ease'; }
+      function move(e){
+        const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+        const rx = ((y - rect.height/2) / rect.height) * -strength;
+        const ry = ((x - rect.width/2) / rect.width) * strength;
+        card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
+      }
+      card.addEventListener('mouseenter', enter);
+      card.addEventListener('mousemove', move);
+      card.addEventListener('mouseleave', leave);
+    });
+
+    // ------------------ Magnetic Buttons ------------------
+    const magnets = document.querySelectorAll('.magnetic');
+    magnets.forEach(btn=>{
+      let rect;
+      btn.addEventListener('mouseenter', ()=> rect = btn.getBoundingClientRect());
+      btn.addEventListener('mousemove', e=>{
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transform = `translate(${x * 0.12}px, ${y * 0.12}px)`;
+      });
+      btn.addEventListener('mouseleave', ()=>{
+        btn.style.transform = `translate(0, 0)`;
+      });
+    });
+
+    // ------------------ ScrollSpy ------------------
+    const sections = [...document.querySelectorAll('section[id]')];
+    const spy = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        const id = entry.target.getAttribute('id');
+        const link = links.find(a => a.dataset.section === id);
+        if(entry.isIntersecting){
+          links.forEach(a=>a.classList.remove('active'));
+          if(link) link.classList.add('active');
+        }
+      });
+    }, {rootMargin:'-60% 0px -35% 0px', threshold:0});
+    sections.forEach(s=>spy.observe(s));
+
+    // ------------------ Command Palette ------------------
+    const shortcuts = [
+      {label: 'Go to About', q:'#about'},
+      {label: 'Go to Experience', q:'#experience'},
+      {label: 'Go to Skills', q:'#skills'},
+      {label: 'Go to Projects', q:'#projects'},
+      {label: 'Go to Contact', q:'#contact'},
+      {label: 'Open Resume', q: RESUME_URL, external: true },
+      {label: 'Email', q:'mailto:dhaval.dex@gmail.com', external:true},
+      {label: 'Call', q:'tel:+919313079129', external:true}
+    ];
+    function openCmd(){
+      cmdOverlay.style.display='flex';
+      cmdOverlay.setAttribute('aria-hidden','false');
+      cmdInput.value='';
+      renderCmd('');
+      cmdInput.focus();
+    }
+    function closeCmd(){
+      cmdOverlay.style.display='none';
+      cmdOverlay.setAttribute('aria-hidden','true');
+    }
+    function renderCmd(filter){
+      cmdList.innerHTML='';
+      const f = filter.toLowerCase();
+      const filtered = shortcuts.filter(s => s.label.toLowerCase().includes(f));
+      filtered.forEach((s,idx)=>{
+        const li = document.createElement('div');
+        li.className = 'cmd-item' + (idx===0?' active':'');
+        li.textContent = s.label;
+        li.dataset.q = s.q;
+        li.dataset.external = !!s.external;
+        cmdList.appendChild(li);
+      });
+    }
+    function activateItem(dir){
+      const items = [...cmdList.querySelectorAll('.cmd-item')];
+      const i = items.findIndex(it=>it.classList.contains('active'));
+      const next = (i + dir + items.length) % items.length;
+      items.forEach(it=>it.classList.remove('active'));
+      items[next].classList.add('active');
+      items[next].scrollIntoView({block:'nearest'});
+    }
+    function runActive(){
+      const item = cmdList.querySelector('.cmd-item.active');
+      if(!item) return;
+      const q = item.dataset.q;
+      const ext = item.dataset.external === 'true';
+      closeCmd();
+      if(ext){ window.open(q, '_blank'); return; }
+      document.querySelector(q)?.scrollIntoView({behavior:'smooth'});
+    }
+    document.addEventListener('keydown', e=>{
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k'){
+        e.preventDefault(); openCmd();
+      }else if(e.key==='Escape' && cmdOverlay.style.display==='flex'){
+        closeCmd();
+      }else if(cmdOverlay.style.display==='flex'){
+        const items = cmdList.querySelectorAll('.cmd-item');
+        if(e.key==='ArrowDown'){ e.preventDefault(); if(items.length) activateItem(1); }
+        if(e.key==='ArrowUp'){ e.preventDefault(); if(items.length) activateItem(-1); }
+        if(e.key==='Enter'){ e.preventDefault(); runActive(); }
+      }
+    });
+    cmdInput.addEventListener('input', e=>renderCmd(e.target.value));
+    cmdList.addEventListener('click', e=>{
+      const item = e.target.closest('.cmd-item');
+      if(!item) return;
+      cmdList.querySelectorAll('.cmd-item').forEach(i=>i.classList.remove('active'));
+      item.classList.add('active');
+      runActive();
+    });
+    cmdOverlay.addEventListener('click', e=>{
+      if(e.target === cmdOverlay) closeCmd();
+    });
+    cmdBtn.addEventListener('click', openCmd);
+  </script>
 </body>
 </html>
 
